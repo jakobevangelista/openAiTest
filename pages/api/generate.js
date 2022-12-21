@@ -7,11 +7,19 @@ const openai = new OpenAIApi(configuration);
 
 export default async function (req, res) {
   const completion = await openai.createCompletion({
-    model: 'text-davinci-003',
-    prompt: generatePrompt(req.body.animal),
+    model: 'code-davinci-002',
+    prompt: req.body.input,
+    max_tokens: 1000,
     temperature: 0.6,
   });
-  res.status(200).json({ result: completion.data.choices[0].text });
+  const text = completion.data.choices[0].text;
+  const formattedText = text
+    .replace(/([.!?])\s*(?=[A-Z])/g, '$1\n')
+    .replace(/^./, function (str) {
+      return str.toUpperCase();
+    });
+  console.log(formattedText);
+  res.status(200).json({ result: formattedText });
 }
 
 function generatePrompt(animal) {
